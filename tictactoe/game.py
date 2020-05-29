@@ -63,45 +63,40 @@ class Game:
         elif o_winner:
             return BoardState.O
 
-    def check_winner(self):
+    @staticmethod
+    def check_winner(board):
         # Check horizontals
         for y in range(3):
-            check = self.board.get(y)
+            check = board.get(y)
             winner = Game._check_all(check)
             if winner:
                 return winner
         # Check Verticals
         for x in range(3):
-            check = [self.board.get(0, x), self.board.get(1, x), self.board.get(2, x)]
+            check = [board.get(0, x), board.get(1, x), board.get(2, x)]
             winner = Game._check_all(check)
             if winner:
                 return winner
         # Check diagonals [00 11 22][02 11 20]
-        check = [self.board.get(0, 0), self.board.get(1, 1), self.board.get(2, 2)]
+        check = [board.get(0, 0), board.get(1, 1), board.get(2, 2)]
         winner = Game._check_all(check)
         if winner:
             return winner
 
-        check = [self.board.get(0, 2), self.board.get(1, 1), self.board.get(2, 0)]
+        check = [board.get(0, 2), board.get(1, 1), board.get(2, 0)]
         winner = Game._check_all(check)
         if winner:
             return winner
 
         # Check stale mate
-        if self._is_stale_mate():
+        if Game._is_stale_mate(board):
             return GameState.GAME_OVER
         
         return GameState.PLAYING
-
-    def _is_stale_mate(self):
-        flat = []
-        for x in range(3):
-            for y in range(3):
-                flat.append(self.board.get(x, y))
-
+    @staticmethod
+    def _is_stale_mate(board):
         not_blank = lambda x: x != BoardState.BLANK
-
-        return all([not_blank(i) for i in flat])
+        return all([not_blank(i) for i in board])
 
     def reset_game(self):
         self.__init__()
@@ -117,7 +112,7 @@ class Game:
     def process_turn(self, x, y):
         self.turns.append((x, y))
         self.board.set(x, y, self.whos_turn)
-        winner = self.check_winner()
+        winner = Game.check_winner(self.board)
         if isinstance(winner, BoardState):
             system("cls")
             self.board.print()
