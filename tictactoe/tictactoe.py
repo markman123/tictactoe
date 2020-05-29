@@ -2,28 +2,37 @@ from .enums import BoardState
 
 class TicTacToe:
     def __init__(self):
-        self.board = [[BoardState.BLANK for _ in range(3)] for _ in range(3)]
+        self.board = [BoardState.BLANK for _ in range(12)]
 
     def __repr__(self):
-        output = "   +-0--+-1--+-2--+\n"
-        for idx, row in enumerate(self.board):
-            
-            cell0 = f" {idx}0 " if row[0] == BoardState.BLANK else f" {row[0]}  "
-            cell1 = f" {idx}1 " if row[1] == BoardState.BLANK else f" {row[1]}  "
-            cell2 = f" {idx}2 " if row[2] == BoardState.BLANK else f" {row[2]}  "
-            row = f"{idx}: |{cell0}|{cell1}|{cell2}|"
+        output = "   +--0--+--1--+--2--+\n"
+        for idx in range(3):
+            idx *= 3
+            row = self.board[idx:idx+3]
+            cell0 = f" {idx//3}0  " if row[0] == BoardState.BLANK else f"  {row[0]}  "
+            cell1 = f" {idx//3}1  " if row[1] == BoardState.BLANK else f"  {row[1]}  "
+            cell2 = f" {idx//3}2  " if row[2] == BoardState.BLANK else f"  {row[2]}  "
+            row = f"{idx//3}: |{cell0}|{cell1}|{cell2}|"
             output += row + "\n"
-        output += "   +----+----+----+"
+        output += "   +-----+-----+-----+"
         return output
 
     def get(self, x, y=None):
+        x *= 3
         if y == None:
-            return self.board[x]
+            #0, 3, 6
+            return self.board[x:x+3]
 
-        return self.board[x][y]
+        return self.board[x + y]
+
+    def get_x_y(self, i):
+        x = i//3
+        y = i - x
+        return x, y
 
     def set(self, x, y, to: BoardState):
-        self.board[x][y] = to
+        x *= 3
+        self.board[x + y] = to
 
     def print(self):
         print(str(self))
