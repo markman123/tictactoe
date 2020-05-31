@@ -1,15 +1,17 @@
 from os import system
 from .enums import GameState, GameMode, BoardState
 from .tictactoe import TicTacToe
+from .ai import GameAI
+
 class Game:
     def __init__(self):
         self.board = TicTacToe()
         self.turns = []
         self.whos_turn = BoardState.X
         self.game_mode = None
+        self.game_ai = None
 
     def select_game_mode(self):
-    
         print("[1]    vs. AI")
         print("[2]    2 Player")
         print("[Else] Quit")
@@ -20,6 +22,7 @@ class Game:
 
         if game_mode == "1":
             self.game_mode = GameMode.ONE_PLAYER
+            self.game_ai = GameAI(Game)
             print("Playing against me! ... you're gonna lose. Loser.")
         elif game_mode == "2":
             self.game_mode = GameMode.TWO_PLAYER
@@ -36,9 +39,22 @@ class Game:
         print("Please, play again! I'm lonely...")
         exit(0)
 
+    def blank_spaces(self, board=None):
+        if not board:
+            board = self.board
+        return [i for i in range(len(board)) if board[i] == BoardState.BLANK]
+
     def game_loop(self):
         system("cls")
         while True:
+            if self.whos_turn == BoardState.O and \
+                self.game_mode == GameMode.ONE_PLAYER:
+                
+                move = self.game_ai.get_best_move(self.board)
+                x, y = TicTacToe.get_x_y(move)
+                self.process_turn(x, y)
+                continue
+
             print("Here is the board:")
             self.board.print()
             turn = input(
@@ -89,14 +105,14 @@ class Game:
             return winner
 
         # Check stale mate
-        if Game._is_stale_mate(board):
+        if Game.no_moves_left(board):
             return GameState.GAME_OVER
         
         return GameState.PLAYING
     @staticmethod
-    def _is_stale_mate(board):
+    def no_moves_left(board):
         not_blank = lambda x: x != BoardState.BLANK
-        return all([not_blank(i) for i in board])
+        return all([not_blank(i) for i in board.board])
 
     def reset_game(self):
         self.__init__()
@@ -125,11 +141,17 @@ class Game:
             system("cls")
             self.switch_player()
 
-    def switch_player(self):
-        if self.whos_turn == BoardState.X:
-            self.whos_turn = BoardState.O
+    @staticmethod
+    def other_player(current_player):
+        if current_player == BoardState.X:
+            return BoardState.O
         else:
-            self.whos_turn = BoardState.X
+            return BoardState.X
+        
+        return current_player
+
+    def switch_player(self):
+        self.whos_turn = Game.other_player(self.whos_turn)
 
     @staticmethod
     def error_text(input):

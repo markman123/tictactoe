@@ -2,7 +2,7 @@ from .enums import BoardState
 
 class TicTacToe:
     def __init__(self):
-        self.board = [BoardState.BLANK for _ in range(12)]
+        self.board = [BoardState.BLANK for _ in range(9)]
 
     def __repr__(self):
         output = "   +--0--+--1--+--2--+\n"
@@ -24,10 +24,10 @@ class TicTacToe:
             return self.board[x:x+3]
 
         return self.board[x + y]
-
-    def get_x_y(self, i):
+    @staticmethod
+    def get_x_y(i):
         x = i//3
-        y = i - x
+        y = i - x * 3
         return x, y
 
     def set(self, x, y, to: BoardState):
